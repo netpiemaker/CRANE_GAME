@@ -1,0 +1,36 @@
+<script src="https://cdn.netpie.io/microgear.js"></script>
+
+<script>
+	var a = location.hash.substring(1).split(':');
+	var appid="",appkey="",appsecret="",sessionid="";
+	if (a.length==4) {
+		appid = a[0];
+		appkey = a[1];
+		appsecret = a[2];
+		sessionid = a[3];
+				
+		var microgear = Microgear.create({
+			key: appkey,
+			secret: appsecret,
+			alias : sessionid+"html"
+		});
+	
+		microgear.on('message',function(topic,msg) {
+			document.getElementById("data").innerHTML = msg;
+		});
+
+		microgear.on('connected', function() {
+			microgear.setAlias(ALIAS);
+			document.getElementById("data").innerHTML = "Now I am connected with netpie..."+sessionid;
+		});
+
+		microgear.resettoken(function(err) {
+			microgear.connect(APPID);
+		});
+	}
+	else {
+		alert("Please parse appid, appkey and appsecret as a hash e.g. :\n\n"+location+"#APPID:APPKEY:APPSECRET:SESSIONID");
+	}
+</script>
+
+<div id="data">_____</div>
