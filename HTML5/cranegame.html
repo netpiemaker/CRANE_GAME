@@ -20,12 +20,12 @@
 		});
 
 		microgear.on('connected', function() {
-			microgear.setAlias(ALIAS);
+			microgear.setAlias(sessionid+"html");
 			document.getElementById("data").innerHTML = "Now I am connected with netpie..."+sessionid;
 		});
 
 		microgear.resettoken(function(err) {
-			microgear.connect(APPID);
+			microgear.connect(appid);
 		});
 	}
 	else {
