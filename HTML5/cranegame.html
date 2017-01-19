@@ -132,7 +132,6 @@
 				document.getElementById("ball").style.top  = ((window.innerHeight/2) - 10) + "px";
 				document.getElementById("ball").style.left = ((window.innerWidth/2) - 10) + "px";
 				if(started){
-					msgs+="PICK,";
 					document.getElementById("msg").innerHTML = msgs;
 					microgear.chat("espcranegame",sessionid+":PICK");
 					msgs="";
