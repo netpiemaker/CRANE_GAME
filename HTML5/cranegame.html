@@ -1,36 +1,197 @@
-<script src="https://cdn.netpie.io/microgear.js"></script>
-
-<script>
-	var a = location.hash.substring(1).split(':');
-	var appid="",appkey="",appsecret="",sessionid="";
-	if (a.length==4) {
-		appid = a[0];
-		appkey = a[1];
-		appsecret = a[2];
-		sessionid = a[3];
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>HTML5 Touch Tracing </title>
+	<script src="https://cdn.netpie.io/microgear.js"></script>
+	<style>
+		#ball {
+		  position: absolute;
+		  top   : 0px;
+		  left  : 0px;
+		  width : 20px;
+		  height: 20px;
+		  background: green;
+		  border-radius: 100%;
+		}
+		
+		#hr1 {
+			position: absolute;
+			top   : 0px;
+			left  : 0px;
+			width : 100%;
+		}
+		
+		#hr2 {
+			position: absolute;
+			top   : 0px;
+			left  : 0px;
+			width : 100%;
+		}
+		
+		 #data {
+			display:block; 
+			position:absolute; 
+			top:10px; 
+			left:10px;
+			font-weight: bold;
+		}
+		
+		 #msg {
+			display:block; 
+			position:absolute; 
+			top:30px; 
+			left:10px;
+			font-weight: bold;
+		}
+	</style>
+  </head>
+  <body onload="init()">
+	<div id="msg"></div>
+	<div class="ball" id="ball"></div>
+	<hr id="hr1"/>
+	<hr id="hr2"/>
+    <script type='text/javascript'>
+		var a = location.hash.substring(1).split(':');
+		var appid="",appkey="",appsecret="",sessionid="";
+		var started = false;
+		var microgear;
+		if (a.length==4) {
+		
+			appid = a[0];
+			appkey = a[1];
+			appsecret = a[2];
+			sessionid = a[3];
+					
+			microgear = Microgear.create({
+				key: appkey,
+				secret: appsecret,
+				alias : sessionid+"html"
+			});
+			
+			document.addEventListener('touchmove', function(e) { e.preventDefault(); }, false);
+			document.addEventListener("touchend", handleEnd, false);
+			
+			var canvas;
+			var ctx;
+			var outside = window.innerHeight/5;
+			var outsideTop = outside;
+			var outsideBottom = outside*4;
+			var outsideTouchTop = outside*2;
+			var outsideTouchBottom = outside*3;
+			var ServoB="", ServoC="", ServoD="";
+			var msgs = "";
+			var maxY = window.innerHeight - 20;
+			
+			function handleMotionEvent(e) {
+				if(started){
+					var x = e.accelerationIncludingGravity.x;
+					var y = e.accelerationIncludingGravity.y;
+					if(x<=-4.5) ServoD="LEFT";
+					else if(x>=4.5) ServoD="RIGHT";
+					else ServoD="";
+					
+					if(y<=-4.5) ServoC="BACKWARD";
+					else if(y>=4.5) ServoC="FORWARD";
+					else ServoC="";
+				}
+			}
+			window.addEventListener("devicemotion", handleMotionEvent, true);
+			
+			function init() {
+				var sizeHeight = window.innerHeight;
+				var sizeWidth = window.innerWidth;
+				var canvas = document.getElementsByTagName('canvas')[0];
+				canvas.width  = sizeWidth;
+				canvas.height = sizeHeight;
 				
-		var microgear = Microgear.create({
-			key: appkey,
-			secret: appsecret,
-			alias : sessionid+"html"
-		});
+				
+				var touchzone = document.getElementById("mycanvas");
+				touchzone.addEventListener("touchmove", draw, false);
+				touchzone.addEventListener("touchend", end, false);
+				ctx = touchzone.getContext("2d");
+			}
+
+			function draw(e) {
+				e.preventDefault();
+				if(started){
+					var pointerY = e.touches[0].pageY;
+					if(pointerY>=outsideTouchBottom) ServoB="UP";
+					else if(pointerY<=outsideTouchTop) ServoB="DOWN";
+					else ServoB="";
+
+					document.getElementById("ball").style.top  = (pointerY - 10) + "px";
+				}
+			}
+	 
+			function end(e) {
+				e.preventDefault();
+			}
+			
+			function handleEnd(){
+				ServoB="";
+				document.getElementById("ball").style.top  = ((window.innerHeight/2) - 10) + "px";
+				document.getElementById("ball").style.left = ((window.innerWidth/2) - 10) + "px";
+				if(started){
+					msgs+="PICK,";
+					document.getElementById("msg").innerHTML = msgs;
+					microgear.chat("espcranegame",sessionid+":SVO"+msgs);
+					msgs="";
+				}
+				started = false;
+			}
+			
+			var startInterval = setInterval(function(){
+				if(started){
+					if(ServoB!="") msgs+=ServoB+",";
+					if(ServoC!="") msgs+=ServoC+",";
+					if(ServoD!="") msgs+=ServoD+",";
+				}
+			},100);
+
+			var sendInterval = setInterval(function(){
+				if(started && msgs){
+					document.getElementById("msg").innerHTML = msgs;
+					microgear.chat("espcranegame",sessionid+":SVO"+msgs);
+					msgs="";
+				}
+			},200);
+		
+			document.getElementById("ball").style.top  = ((window.innerHeight/2) - 10) + "px";
+			document.getElementById("ball").style.left = ((window.innerWidth/2) - 10) + "px";
+			document.getElementById("hr1").style.top  = outsideTouchTop+"px";
+			document.getElementById("hr2").style.top  = outsideTouchBottom+"px";
+		
+			microgear.on('message',function(topic,msg) {
+				console.log(msg);
+			});
+
+			microgear.on('connected', function() {
+				started = true;
+				microgear.setAlias(sessionid+"html");
+				microgear.chat("espcranegame",sessionid+":START");
+				document.getElementById("data").innerHTML = "<font color='#6bca0e'>ONLINE</font>";
+			});
+
+			microgear.on('disconnected', function() {
+				started = false;
+				microgear.setAlias(sessionid+"html");
+				microgear.chat("espcranegame",sessionid+":START");
+				document.getElementById("data").innerHTML = "<font color='gray'>OFFLINE</font>";
+			});
+
+			microgear.resettoken(function(err) {
+				microgear.connect(appid);
+			});
+		}
+		else {
+			alert("Please parse appid, appkey and appsecret as a hash e.g. :\n\n"+location+"#APPID:APPKEY:APPSECRET:SESSIONID");
+		}
+		
+	</script>
 	
-		microgear.on('message',function(topic,msg) {
-			document.getElementById("data").innerHTML = msg;
-		});
-
-		microgear.on('connected', function() {
-			microgear.setAlias(sessionid+"html");
-			document.getElementById("data").innerHTML = "Now I am connected with netpie..."+sessionid;
-		});
-
-		microgear.resettoken(function(err) {
-			microgear.connect(appid);
-		});
-	}
-	else {
-		alert("Please parse appid, appkey and appsecret as a hash e.g. :\n\n"+location+"#APPID:APPKEY:APPSECRET:SESSIONID");
-	}
-</script>
-
-<div id="data">_____</div>
+	<div id="data"><font color='gray'>OFFLINE</font></div>
+    <canvas id="mycanvas" width="500" height="500">
+      Canvas element not supported.
+    </canvas>
+  </body>
+</html>
