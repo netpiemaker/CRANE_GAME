@@ -10,6 +10,9 @@ ESPresso Lite V2.0
 - http://www.espressolite.com/buy
 - https://www.tertiaryrobotics.com/espresso-lite-v2.html
 
+USB to UART (CP2102) with DTR/CTS pinout
+- https://www.amazon.co.uk/UART-CP2102-Module-Serial-Converter/dp/B00AFRXKFU
+
 1.8" Color TFT LCD display with MicroSD Card Breakout - ST7735R
 - https://www.adafruit.com/product/358
 - https://learn.adafruit.com/1-8-tft-display/breakout-wiring-and-test
@@ -20,3 +23,6 @@ ESPresso Lite V2.0
 - ESP8266 QRcode by Anun Panya (modified for st7735 led display)
 - Adafruit ST7735 Library by Adafruit
 - Adafruit GFX Library by Adafruit
+
+### USB Driver
+https://www.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers
