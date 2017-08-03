@@ -23,6 +23,7 @@ USB to UART (CP2102) with DTR/CTS pinout
 - ESP8266 QRcode by Anun Panya (modified for st7735 led display)
 - Adafruit ST7735 Library by Adafruit
 - Adafruit GFX Library by Adafruit
+- WiFiManager by tzapu
 
 ### USB Driver
 https://www.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers
