@@ -1,6 +1,8 @@
 # CRANE_GAME
 Example IoT Game with NETPIE (https://netpie.io)
 
+NETPIE - Blog (https://blog.netpie.io/archives/2422)
+
 ### Hardware
 
 Acrylic Robot Arm Claw For Mechanical Grab Manipulator Smart Robot
